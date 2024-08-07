@@ -26,6 +26,7 @@ const Login = () => {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
+      // Get CSRF token
       await axios.get(
         "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/sanctum/csrf-cookie",
         {
@@ -33,17 +34,33 @@ const Login = () => {
         }
       );
 
+      // Perform login
       const response = await axios.post(
         "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/api/auth/login",
         {
           email,
           password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "X-XSRF-TOKEN": document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("XSRF-TOKEN"))
+              .split("=")[1],
+          },
         }
       );
 
       console.log(response.data);
     } catch (error) {
-      console.error("Login failed:", error);
+      if (axios.isAxiosError(error)) {
+        // Axios specific error handling
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        // General error handling
+        console.error("Login failed:", error);
+      }
     }
   };
 
