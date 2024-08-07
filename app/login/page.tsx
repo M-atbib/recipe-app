@@ -28,13 +28,16 @@ const Login = () => {
     withCredentials: true,
   });
 
-  const fetchCsrfToken = async () => {
-    const crsf = http.get("/sanctum/csrf-cookie");
-    console.log(crsf);
-  };
 
   useEffect(() => {
-    fetchCsrfToken();
+   http
+     .get("/sanctum/csrf-cookie")
+     .then((response) => {
+       console.log("CSRF token set", response);
+     })
+     .catch((error) => {
+       console.error("Error setting CSRF token", error);
+     });
   }, []);
 
   const handleLogin = async (e: FormEvent) => {
