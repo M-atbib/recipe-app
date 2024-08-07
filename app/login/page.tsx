@@ -12,16 +12,19 @@ import {
   Typography,
   Link,
 } from "@mui/material";
-import {
-  Facebook as FacebookIcon,
-  Google as GoogleIcon,
-} from "@mui/icons-material";
 import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepSignedIn, setKeepSignedIn] = useState(true);
+
+  const getCsrfToken = () => {
+    const cookies = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("XSRF-TOKEN"));
+    return cookies ? cookies.split("=")[1] : null;
+  };
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -34,6 +37,11 @@ const Login = () => {
         }
       );
 
+      const csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        throw new Error("CSRF token not found");
+      }
+
       // Perform login
       const response = await axios.post(
         "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/api/auth/login",
@@ -44,10 +52,7 @@ const Login = () => {
         {
           withCredentials: true,
           headers: {
-            "X-XSRF-TOKEN": document.cookie
-              .split("; ")
-              .find((row) => row.startsWith("XSRF-TOKEN"))
-              .split("=")[1],
+            "X-XSRF-TOKEN": csrfToken,
           },
         }
       );
