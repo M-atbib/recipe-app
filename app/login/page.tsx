@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,16 +23,26 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [keepSignedIn, setKeepSignedIn] = useState(true);
 
+  const http = axios.create({
+    baseURL: "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    withCredentials: true,
+  });
+
+  const fetchCsrfToken = async () => {
+    const crsf = await http.get("/sanctum/csrf-cookie");
+    console.log(crsf);
+  };
+
+  useEffect(() => {
+    fetchCsrfToken();
+  }, []);
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await axios.get(
-        "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/sanctum/csrf-cookie",
-        {
-          withCredentials: true,
-        }
-      );
-
       const response = await axios.post(
         "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/api/auth/login",
         {
