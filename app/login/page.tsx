@@ -25,14 +25,11 @@ const Login = () => {
 
   const http = axios.create({
     baseURL: "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com",
-    headers: {
-      "X-Requested-With": "XMLHttpRequest",
-    },
     withCredentials: true,
   });
 
   const fetchCsrfToken = async () => {
-    const crsf = await http.get("/sanctum/csrf-cookie");
+    const crsf = http.get("/sanctum/csrf-cookie");
     console.log(crsf);
   };
 
