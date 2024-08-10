@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, FormEvent, useEffect } from "react";
+import { login, logout } from "@/redux/features/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   Box,
   Button,
@@ -16,45 +18,17 @@ import {
   Facebook as FacebookIcon,
   Google as GoogleIcon,
 } from "@mui/icons-material";
-import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [keepSignedIn, setKeepSignedIn] = useState(true);
 
-  const http = axios.create({
-    baseURL: "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com",
-    withCredentials: true,
-  });
+  const dispatch = useAppDispatch();
+  const emailDisplay = useAppSelector((state: any) => state.auth.value.email);
 
-
-  useEffect(() => {
-   http
-     .get("/sanctum/csrf-cookie")
-     .then((response) => {
-       console.log("CSRF token set", response);
-     })
-     .catch((error) => {
-       console.error("Error setting CSRF token", error);
-     });
-  }, []);
-
-  const handleLogin = async (e: FormEvent) => {
+  const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        "https://gestion-groupeelhouria-d5bfba1b9bb0.herokuapp.com/api/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-
-      console.log(response.data);
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+    dispatch(login({ email, password }));
   };
 
   return (
@@ -100,18 +74,18 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="mt-2"
           />
-          <FormControlLabel
+          {/* <FormControlLabel
             control={
               <Checkbox
                 value={keepSignedIn}
                 color="primary"
                 checked={keepSignedIn}
-                onChange={() => setKeepSignedIn(!keepSignedIn)}
+                onChange={() => dispatch(setKeepSignedIn(!keepSignedIn))}
               />
             }
             label="Keep me signed in"
             className="mt-2"
-          />
+          /> */}
           <Button
             type="submit"
             fullWidth
@@ -120,6 +94,11 @@ const Login = () => {
           >
             Log in
           </Button>
+          {/* {loginError && (
+            <Typography color="error" className="mt-2">
+              {loginError}
+            </Typography>
+          )} */}
           <Link href="#" variant="body2" className="block text-center mt-2">
             Forgot your password?
           </Link>
@@ -127,6 +106,10 @@ const Login = () => {
             {"Don't have an account? Sign up"}
           </Link>
         </Box>
+
+        <Typography component="h1" variant="h5">
+          {emailDisplay}
+        </Typography>
       </Box>
     </Container>
   );
