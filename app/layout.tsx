@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { ReduxProvider } from "@/redux/provider";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { Container } from "@mui/material";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,8 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <ReduxProvider>{children}</ReduxProvider>
+      <body className="min-h-screen flex flex-col mt-5">
+        <ReduxProvider>
+          <Navbar />
+          <div className="flex-grow">{children}</div>
+          <Footer />
+        </ReduxProvider>
       </body>
     </html>
   );
