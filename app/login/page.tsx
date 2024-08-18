@@ -101,7 +101,7 @@ const Login = () => {
           Login
         </button>
         <p className="text-sm text-slate-400 text-right">
-          Don't have an account
+          Dont have an account
         </p>
         <button className="bg-gray-400 px-4 font-semibold py-3 w-full">
           Sign up
