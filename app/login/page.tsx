@@ -1,117 +1,116 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
-import { login, logout } from "@/redux/features/authSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  CssBaseline,
-  FormControlLabel,
-  TextField,
-  Typography,
-  Link,
-} from "@mui/material";
-import {
-  Facebook as FacebookIcon,
-  Google as GoogleIcon,
-} from "@mui/icons-material";
+import { useState } from "react";
+import Logo from "@/components/Logo";
+import { Facebook, Google } from "@mui/icons-material";
+import { createClient } from "@/utils/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const dispatch = useAppDispatch();
-  const emailDisplay = useAppSelector((state: any) => state.auth.value.email);
-
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(login({ email, password }));
+    const supabase = createClient();
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
+      {
+        email,
+        password,
+      }
+    );
+    if (signUpError) {
+      setError(signUpError.message);
+    } else {
+      setError("");
+      const { data: insertData, error: insertError } = await supabase
+        .from("user")
+        .insert([{ email: email, created_at: new Date().toISOString() }])
+        .select();
+      if (insertError) {
+        setError(insertError.message);
+      } else {
+        setError("");
+        // Redirect or perform other actions on successful login
+      }
+    }
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
-      className="mt-8 flex flex-col items-center"
-    >
-      <CssBaseline />
-      <Box className="flex flex-col items-center">
-        <Typography component="h1" variant="h5">
-          Log in to Epicure
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={handleLogin}
-          noValidate
-          className="mt-4 w-full"
-        >
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
+    <div className="container">
+      <div className="flex items-end gap-2 justify-center">
+        <h1 className="text-xl font-bold">Login to </h1>
+        <Logo />
+      </div>
+
+      <div className="flex justify-center items-center mx-auto gap-2 my-5">
+        <button className="bg-gray-200 w-[25ch] py-3 font-semibold">
+          Continue with Facebook
+        </button>
+        <button className="bg-gray-200 w-[25ch] py-3 font-semibold">
+          Continue with Google
+        </button>
+      </div>
+
+      <h3 className="text-slate-400 text-center">OR</h3>
+
+      <form onSubmit={handleLogin} className="mt-5 w-[50%] space-y-3">
+        <div>
+          <label htmlFor="email" className="text-slate-600 ml-1">
+            Email
+          </label>
+          <input
+            type="email"
             name="email"
-            autoComplete="email"
-            autoFocus
+            id="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-2"
-          />
-          <TextField
-            margin="normal"
             required
-            fullWidth
-            name="password"
-            label="Password"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="text-slate-600 ml-1">
+            Password
+          </label>
+          <input
             type="password"
+            name="password"
             id="password"
-            autoComplete="current-password"
+            placeholder="At least 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-2"
+            required
           />
-          {/* <FormControlLabel
-            control={
-              <Checkbox
-                value={keepSignedIn}
-                color="primary"
-                checked={keepSignedIn}
-                onChange={() => dispatch(setKeepSignedIn(!keepSignedIn))}
-              />
-            }
-            label="Keep me signed in"
-            className="mt-2"
-          /> */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            className="mt-3 mb-2"
-          >
-            Log in
-          </Button>
-          {/* {loginError && (
-            <Typography color="error" className="mt-2">
-              {loginError}
-            </Typography>
-          )} */}
-          <Link href="#" variant="body2" className="block text-center mt-2">
-            Forgot your password?
-          </Link>
-          <Link href="#" variant="body2" className="block text-center mt-2">
-            {"Don't have an account? Sign up"}
-          </Link>
-        </Box>
+        </div>
 
-        <Typography component="h1" variant="h5">
-          {emailDisplay}
-        </Typography>
-      </Box>
-    </Container>
+        <div className="flex w-fit gap-2">
+          <input
+            type="checkbox"
+            name="keep_signed"
+            id="keep_signed"
+            className="w-9"
+          />
+          <label htmlFor="keep_signed" className="text-nowrap text-sm">
+            Keep me signed in
+          </label>
+        </div>
+
+        <button className="bg-primary w-full py-2 text-white font-medium text-lg">
+          Login
+        </button>
+        <p className="text-sm text-slate-400 text-right">
+          Dont have an account
+        </p>
+        <button className="bg-gray-400 px-4 font-semibold py-3 w-full">
+          Sign up
+        </button>
+        <p className="text-sm text-slate-400 text-right">
+          Forgot your password?
+        </p>
+      </form>
+    </div>
   );
 };
 

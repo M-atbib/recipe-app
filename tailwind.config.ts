@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        customOrange: "#f47125",
+        primary: "#f47125",
       },
       fontFamily: {
         epilogue: ["Epilogue", "sans-serif"],
